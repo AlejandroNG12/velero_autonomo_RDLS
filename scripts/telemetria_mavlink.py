@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from pymavlink import mavutil
 import logging
 import time
+from pymavlink import mavutil
 
 from storage.db import (
     get_db_connection,
@@ -12,99 +12,212 @@ from storage.db import (
     insert_wind,
 )
 
-DEVICE = "/dev/serial0"
+# ----------------------------------------------------------
+# CONFIGURACIÓN
+# ----------------------------------------------------------
+
+DEVICE = "/dev/ttyACM0"   # USB Pixhawk
 BAUD   = 57600
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
+    format="%(asctime)s [TEL] %(message)s"
 )
 
-INTERESTING = {
-    "GLOBAL_POSITION_INT",
-    "ATTITUDE",
-    "RAW_IMU",
-    "SCALED_IMU",
-    "WIND",
-    "WIND_COV",
+# ----------------------------------------------------------
+# VARIABLES DE ESTADO PARA IMPRESIÓN CADA 5 s
+# ----------------------------------------------------------
+
+last_status = {
+    "lat": None,
+    "lon": None,
+    "alt": None,
+    "groundspeed": None,
+    "heading": None,
+    "roll": None,
+    "pitch": None,
+    "yaw": None,
+    "wind_dir": None,
+    "wind_speed": None,
 }
 
-LOG_INTERVAL = {
-    "GLOBAL_POSITION_INT": 1.0,   # GPS cada 1 segundo
-    "ATTITUDE":            1.0,   # actitud cada 1 s
-    "RAW_IMU":             1.0,
-    "SCALED_IMU":          1.0,
-    "WIND_COV":            1.0,
-    "WIND":                1.0,
-}
+last_print_time = 0.0
+PRINT_INTERVAL = 5.0
 
 
-def connect_pixhawk():
-    logging.info(f"Conectando a {DEVICE} @ {BAUD} baud...")
-    master = mavutil.mavlink_connection(DEVICE, baud=BAUD)
+def print_status():
+    """Imprime telemetría resumida cada 5 s."""
+    lat = last_status["lat"]
+    lon = last_status["lon"]
+    alt = last_status["alt"]
+    gs  = last_status["groundspeed"]
+    hdg = last_status["heading"]
+    roll = last_status["roll"]
+    pitch = last_status["pitch"]
+    yaw = last_status["yaw"]
+    wdir = last_status["wind_dir"]
+    ws   = last_status["wind_speed"]
 
-    logging.info("Esperando heartbeat...")
-    master.wait_heartbeat()
-    logging.info(
-        f"Heartbeat de sistema {master.target_system}, componente {master.target_component}"
-    )
-    return master
+    partes = []
 
+    if lat is not None and lon is not None:
+        if alt is not None:
+            partes.append(f"GPS lat={lat:.6f}, lon={lon:.6f}, alt={alt:.1f} m")
+        else:
+            partes.append(f"GPS lat={lat:.6f}, lon={lon:.6f}")
+
+    if gs is not None or hdg is not None:
+        s = []
+        if gs is not None: s.append(f"SOG={gs:.2f} kn")
+        if hdg is not None: s.append(f"COG={hdg:.1f}°")
+        if s: partes.append(" ".join(s))
+
+    if roll is not None or pitch is not None or yaw is not None:
+        partes.append(
+            "ATT roll={:.1f}° pitch={:.1f}° yaw={:.1f}°".format(
+                roll if roll is not None else 0,
+                pitch if pitch is not None else 0,
+                yaw if yaw is not None else 0
+            )
+        )
+
+    if ws is not None or wdir is not None:
+        partes.append(
+            "WIND {:.1f} kn @ {:.0f}°".format(
+                ws if ws else 0.0,
+                (wdir if wdir else 0.0) % 360
+            )
+        )
+
+    if partes:
+        logging.info(" | ".join(partes))
+    else:
+        logging.info("Aún no hay suficientes datos.")
+
+
+# ----------------------------------------------------------
+# PROCESO PRINCIPAL
+# ----------------------------------------------------------
 
 def main():
+
+    global last_print_time
+
+    logging.info("Iniciando módulo MAVLink (USB).")
+
     conn = get_db_connection()
     init_db(conn)
 
-    master = connect_pixhawk()
-
-    last_logged = {msg_type: 0.0 for msg_type in LOG_INTERVAL.keys()}
-
+    # Conectar a Pixhawk por USB
     try:
-        while True:
-            msg = master.recv_match(blocking=True, timeout=1.0)
+        master = mavutil.mavlink_connection(DEVICE, baud=BAUD)
+        logging.info(f"MAVLink conectado en {DEVICE} @ {BAUD}")
+    except Exception as e:
+        logging.error(f"Error abriendo {DEVICE}: {e}")
+        return
+
+    logging.info("Esperando heartbeat...")
+    try:
+        master.wait_heartbeat(timeout=20)
+    except:
+        logging.error("No llegó el heartbeat de la Pixhawk.")
+        return
+
+    logging.info("Heartbeat recibido. Comenzando lectura MAVLink...")
+
+    while True:
+        try:
+            msg = master.recv_match(blocking=False)
+            now = time.time()
+
             if msg is None:
+                # ¿Toca imprimir?
+                if now - last_print_time >= PRINT_INTERVAL:
+                    print_status()
+                    last_print_time = now
+                time.sleep(0.05)
                 continue
 
             mtype = msg.get_type()
 
-            if mtype not in INTERESTING:
-                continue
+            # --------------------------------------------------
+            # GLOBAL_POSITION_INT   (LAT/LON/ALT + ground speed)
+            # --------------------------------------------------
+            if mtype == "GLOBAL_POSITION_INT":
+                lat = msg.lat / 1e7
+                lon = msg.lon / 1e7
+                alt = msg.alt / 1000.0
 
-            if mtype not in LOG_INTERVAL:
-                continue
+                groundspeed = None
+                try:
+                    groundspeed = msg.vx / 100.0 * 1.94384
+                except:
+                    pass
 
-            now = time.time()
-            if now - last_logged[mtype] < LOG_INTERVAL[mtype]:
-                continue
+                heading = None
+                try:
+                    heading = msg.hdg / 100.0
+                except:
+                    pass
 
-            last_logged[mtype] = now
+                # Guardar estado
+                last_status["lat"] = lat
+                last_status["lon"] = lon
+                last_status["alt"] = alt
+                last_status["groundspeed"] = groundspeed
+                last_status["heading"] = heading
 
-            try:
-                if mtype == "GLOBAL_POSITION_INT":
-                    insert_gps(conn, msg)
-                    logging.info("GPS guardado")
+                # Guardar en BD
+                insert_gps(conn, time.time(), lat, lon, alt, groundspeed, heading)
 
-                elif mtype == "ATTITUDE":
-                    insert_attitude(conn, msg)
-                    logging.info("Actitud guardada")
+            # -----------------------------
+            # ATTITUDE (roll/pitch/yaw)
+            # -----------------------------
+            elif mtype == "ATTITUDE":
+                roll = msg.roll * 180 / math.pi
+                pitch = msg.pitch * 180 / math.pi
+                yaw = msg.yaw * 180 / math.pi
 
-                elif mtype in ("RAW_IMU", "SCALED_IMU"):
-                    insert_imu(conn, msg)
-                    logging.info("IMU guardada")
+                last_status["roll"] = roll
+                last_status["pitch"] = pitch
+                last_status["yaw"] = yaw
 
-                elif mtype in ("WIND", "WIND_COV"):
-                    insert_wind(conn, msg)
-                    logging.info(f"Viento guardado ({mtype})")
+                insert_attitude(conn, time.time(), roll, pitch, yaw)
 
-            except Exception as e:
-                logging.error(f"Error insertando {mtype}: {e}")
+            # ------------------------------------------------
+            # WIND / WIND_COV si la Pixhawk envía datos viento
+            # ------------------------------------------------
+            elif mtype in ("WIND", "WIND_COV"):
+                try:
+                    direction = msg.direction
+                    speed = msg.speed  # en m/s
+                    speed_knots = speed * 1.94384
 
-    except KeyboardInterrupt:
-        logging.info("Saliendo por Ctrl+C")
+                    last_status["wind_dir"] = direction
+                    last_status["wind_speed"] = speed_knots
 
-    finally:
-        conn.close()
-        logging.info("Conexión BD cerrada.")
+                    insert_wind(conn, time.time(), direction, speed_knots)
+
+                except:
+                    pass
+
+            # ------------------------------------------------
+            # ¿Toca imprimir resumen?
+            # ------------------------------------------------
+            if now - last_print_time >= PRINT_INTERVAL:
+                print_status()
+                last_print_time = now
+
+        except KeyboardInterrupt:
+            logging.info("Saliendo por Ctrl+C")
+            break
+
+        except Exception as e:
+            logging.error(f"Error procesando mensaje: {e}")
+            time.sleep(0.1)
+
+    conn.close()
+    logging.info("Conexión BD cerrada.")
 
 
 if __name__ == "__main__":
