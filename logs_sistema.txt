@@ -1,0 +1,4 @@
+2026-02-12 12:54:13,485 [INFO] MainThread: --- Iniciando SailBridge OS ---
+2026-02-12 12:54:13,488 [INFO] MainThread: Base de datos inicializada correctamente.
+2026-02-12 12:54:13,488 [INFO] WindThread: Hilo de VIENTO activo (Esperando hardware...)
+2026-02-12 12:54:13,489 [INFO] MavlinkThread: Hilo MAVLINK activo (Esperando USB...)
