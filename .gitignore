@@ -1,6 +1,6 @@
+# .gitignore
+venv/
 __pycache__/
 *.pyc
-storage/*.db
-outputs/*.csv
-logs/
-venv/
+storage/telemetria.db
+.DS_Store

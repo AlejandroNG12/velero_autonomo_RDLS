@@ -15,8 +15,8 @@ import threading
 import time
 import logging
 
-import viento_nmea
-import telemetria_mavlink
+from . import viento_nmea
+from . import telemetria_mavlink
 
 
 def viento_loop():
@@ -55,7 +55,7 @@ def main():
     )
 
     logging.info("[MAIN] Iniciando sistema unificado viento + MAVLink")
-    logging.info(f"[MAIN] Viento por UART /dev/serial0, MAVLink por USB {MAVLINK_USB_DEVICE}")
+    logging.info(f"[MAIN] Viento por UART /dev/serial0, MAVLink por USB")
 
     t_viento = threading.Thread(target=viento_loop, daemon=True)
     t_mav    = threading.Thread(target=mavlink_loop, daemon=True)

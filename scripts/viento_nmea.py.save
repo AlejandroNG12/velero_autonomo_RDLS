@@ -28,7 +28,7 @@ logging.basicConfig(
 last_wind_dir = None       # grados
 last_wind_speed = None     # nudos
 last_print_time = 0.0
-PRINT_INTERVAL = 5.0       # segundos
+PRINT_INTERVAL = 2.0       # segundos
 
 
 # ----------------------------------------------------------

@@ -4,7 +4,10 @@ import math
 import logging
 import os
 
+# Directorio donde está este fichero (storage/)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Ruta ABSOLUTA a telemetria.db dentro de storage/
 DB_PATH = os.path.join(BASE_DIR, "telemetria.db")
 
 
@@ -180,9 +183,30 @@ def insert_imu(conn, msg):
     conn.commit()
 
 # ============================================================
-#   INSERCIÓN DE DATOS VIENTO
+#   INSERCIÓN DE DATOS VIENTO NMEA
 # ============================================================
+def insert_wind_NMEA(conn, wind_speed_ms, wind_dir_deg, time_boot_s=None, wind_vertical=None):
+    """
+    Inserta una muestra de viento a partir de valores simples (no MAVLink),
+    pensada para el flujo NMEA (Actisense + analyzer).
+    """
+    ts_utc = time.time()
+    timestamp_text = time.strftime("%a %Y-%m-%d %H:%M:%S", time.localtime(ts_utc))
 
+    conn.execute("""
+        INSERT INTO wind_samples (
+            timestamp_utc, timestamp_text, time_boot_s,
+            wind_speed_ms, wind_dir_deg, wind_vertical
+        ) VALUES (?, ?, ?, ?, ?, ?);
+    """, (
+        ts_utc, timestamp_text, time_boot_s,
+        wind_speed_ms, wind_dir_deg, wind_vertical
+    ))
+    conn.commit()
+
+# ============================================================
+#   INSERCIÓN DE DATOS VIENTO MAVLINK
+# ============================================================
 def insert_wind(conn, msg):
     ts_utc = time.time()
     timestamp_text = time.strftime("%a %Y-%m-%d %H:%M:%S", time.localtime(ts_utc))

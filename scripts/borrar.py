@@ -5,7 +5,7 @@ import math
 import time
 import logging
 import serial
-from storage import db
+
 # ----------------------------------------------------------
 # CONFIGURACIÓN
 # ----------------------------------------------------------
@@ -13,8 +13,6 @@ from storage import db
 ACTISENSE_PORT = "/dev/ttyUSB0"    # Actisense NMEA2000 → NMEA0183 JSON
 PIXHAWK_DEV = "/dev/serial0"       # GPIO14/15 → TELEM2
 PIXHAWK_BAUD = 4800                # NMEA 4800
-WIND_SAVE_INTERVAL = 1.0  # segundos
-last_db_save = 0.0
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,7 +26,7 @@ logging.basicConfig(
 last_wind_dir = None       # grados
 last_wind_speed = None     # nudos
 last_print_time = 0.0
-PRINT_INTERVAL = 5.0       # segundos
+PRINT_INTERVAL = 1.0       # segundos
 
 
 # ----------------------------------------------------------
@@ -70,13 +68,10 @@ def print_wind_status():
 
 def main():
 
-    global last_wind_dir, last_wind_speed, last_print_time, last_db_save
+    global last_wind_dir, last_wind_speed, last_print_time
 
     logging.info("Iniciando módulo de viento NMEA → Pixhawk (TELEM2).")
-    # Conexion a BD
-    conn = db.get_db_connection()
-    db.init_db(conn)
-    
+
     # Abrir UART hacia la Pixhawk
     try:
         ser = serial.Serial(PIXHAWK_DEV, PIXHAWK_BAUD, timeout=1)
@@ -106,7 +101,6 @@ def main():
     try:
         for raw in p2.stdout:
             line = raw.decode("utf-8", errors="ignore").strip()
-            now = time.time()
             if not line:
                 continue
 
@@ -129,11 +123,6 @@ def main():
                 wind_speed_knots = wind_speed_ms * 1.94384
                 wind_dir_deg = math.degrees(wind_angle_rad)
 
-                # Guardar en BD (en m/s y grados) cada WIND_SAVE_INTERVAL
-                if now - last_db_save >= WIND_SAVE_INTERVAL:
-                    db.insert_wind_NMEA(conn, wind_speed_ms, wind_dir_deg)
-                    last_db_save = now
-                
                 # Actualizar estado
                 last_wind_dir = wind_dir_deg
                 last_wind_speed = wind_speed_knots
@@ -143,7 +132,7 @@ def main():
                 ser.write(mwv.encode("ascii") + b"\r\n")
 
                 # Imprimir cada 5 s
-                #now = time.time()
+                now = time.time()
                 if now - last_print_time >= PRINT_INTERVAL:
                     print_wind_status()
                     last_print_time = now
@@ -153,7 +142,6 @@ def main():
                 continue
 
     finally:
-        conn.close()
         logging.info("Finalizando módulo de viento.")
         try:
             if ser.is_open:
