@@ -1,4 +1,106 @@
-2026-02-12 12:54:13,485 [INFO] MainThread: --- Iniciando SailBridge OS ---
-2026-02-12 12:54:13,488 [INFO] MainThread: Base de datos inicializada correctamente.
-2026-02-12 12:54:13,488 [INFO] WindThread: Hilo de VIENTO activo (Esperando hardware...)
-2026-02-12 12:54:13,489 [INFO] MavlinkThread: Hilo MAVLINK activo (Esperando USB...)
+2026-02-18 12:53:29,698 [INFO] MainThread: --- Iniciando SailBridge OS ---
+2026-02-18 12:53:29,700 [INFO] MainThread: Base de datos inicializada correctamente.
+2026-02-18 12:53:29,700 [INFO] MainThread: Base de datos lista.
+2026-02-18 12:53:29,701 [INFO] WindThread: 🌀 Hilo de Viento iniciado (Basado en script funcional)
+2026-02-18 12:53:29,702 [INFO] MavlinkThread: Intentando conectar con Pixhawk en /dev/ttyACM0...
+2026-02-18 12:53:29,702 [INFO] MainThread: Hilos de ejecución iniciados correctamente.
+2026-02-18 12:53:29,702 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:53:29,702 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:53:29,703 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:53:29,705 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:53:31,711 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,197.7,R,0.0,N,A*2B
+2026-02-18 12:53:32,775 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:53:33,309 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:53:34,703 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:53:34,704 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:53:38,310 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:53:38,314 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:53:39,704 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:53:39,705 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:53:40,322 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,197.7,R,0.0,N,A*2B
+2026-02-18 12:53:41,386 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:53:41,921 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:53:44,706 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:53:44,706 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:53:46,922 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:53:46,926 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:53:48,931 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,197.7,R,0.0,N,A*2B
+2026-02-18 12:53:49,707 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:53:49,707 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:53:49,992 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:53:50,529 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:53:54,709 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:53:54,709 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:53:55,530 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:53:55,534 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:53:57,540 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,197.7,R,0.0,N,A*2B
+2026-02-18 12:53:58,599 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:53:59,137 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:53:59,710 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:53:59,711 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:04,138 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:54:04,143 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:54:04,712 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:04,712 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:06,149 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,197.7,R,0.0,N,A*2B
+2026-02-18 12:54:07,209 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:54:07,749 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:54:09,713 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:09,713 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:12,750 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:54:12,753 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:54:14,714 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:14,715 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:14,759 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,197.7,R,0.0,N,A*2B
+2026-02-18 12:54:15,822 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:54:16,357 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:54:19,716 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:19,716 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:21,358 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:54:21,362 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:54:23,370 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,191.1,R,5.1,N,A*2F
+2026-02-18 12:54:24,465 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:54:24,717 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:24,717 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:25,021 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:54:29,718 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:29,719 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:30,022 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:54:30,026 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:54:32,031 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,80.9,R,4.0,N,A*16
+2026-02-18 12:54:33,025 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:54:33,569 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:54:34,725 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:34,725 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:38,570 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:54:38,573 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:54:39,726 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:39,726 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:40,580 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,83.2,R,1.1,N,A*1A
+2026-02-18 12:54:41,506 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:54:42,069 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:54:44,727 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:44,728 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:47,070 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:54:47,074 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:54:49,081 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,80.5,R,0.0,N,A*1E
+2026-02-18 12:54:49,729 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:49,729 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:50,007 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:54:50,569 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:54:54,730 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:54,730 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:54:55,570 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:54:55,574 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:54:57,579 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,80.0,R,0.0,N,A*1B
+2026-02-18 12:54:58,506 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:54:59,061 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
+2026-02-18 12:54:59,731 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:54:59,731 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:55:04,062 [INFO] WindThread: ✅ Puerto serial /dev/serial0 listo.
+2026-02-18 12:55:04,068 [INFO] WindThread: 🚀 Pipeline Actisense -> Analyzer iniciado.
+2026-02-18 12:55:04,732 [ERROR] MavlinkThread: Error en enlace MAVLink: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2026-02-18 12:55:04,733 [INFO] MavlinkThread: Reintentando conexión en 5 segundos...
+2026-02-18 12:55:06,079 [INFO] WindThread: 📡 MONITORIZACIÓN -> $WIMWV,80.0,R,0.0,N,A*1B
+2026-02-18 12:55:07,073 [WARNING] WindThread: ⚠️ El flujo de datos se ha detenido (EOF detectado).
+2026-02-18 12:55:07,617 [INFO] WindThread: 🔄 Reintentando conexión de viento en 5 segundos...
