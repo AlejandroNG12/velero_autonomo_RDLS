@@ -4,6 +4,8 @@ import math
 import time
 import logging
 import serial
+import os
+import sys
 from config import PORT_WIND_IN, PORT_WIND_OUT, BAUD_WIND_OUT, WIND_SAVE_INTERVAL
 from core.database import insert_data
 
@@ -15,14 +17,14 @@ def calcular_checksum(sentencia):
     return f"{checksum:02X}"
 
 def generar_mwv(angulo, velocidad, unidad_velocidad='N', referencia_angulo='R'):
-    """Genera la sentencia NMEA 0183 MWV"""
+    """Genera la sentencia NMEA 0183 MWV ($WIMWV)"""
     # Formato: $WIMWV,AAA.A,R,VVV.V,N,A
     data = f"WIMWV,{angulo:.1f},{referencia_angulo},{velocidad:.1f},{unidad_velocidad},A"
     checksum = calcular_checksum('$' + data)
     return f"${data}*{checksum}\r\n"
 
 def wind_loop():
-    logging.info(f"🌀 Hilo de Viento iniciado (Basado en script funcional)")
+    logging.info(f"🌀 Hilo de Viento iniciado (Modo Resiliente STDIN)")
     
     while True:
         ser_out = None
@@ -30,25 +32,32 @@ def wind_loop():
         p2 = None
         
         try:
+            # 0. Limpieza profunda y espera de liberación de puerto
+            logging.info("Limpiando procesos antiguos y esperando al puerto...")
+            os.system("pkill -9 -f actisense-serial")
+            os.system("pkill -9 -f analyzer")
+            time.sleep(2) 
+
             # 1. Abrir puerto serial hacia la Pixhawk
             ser_out = serial.Serial(PORT_WIND_OUT, BAUD_WIND_OUT, timeout=1)
             logging.info(f"✅ Puerto serial {PORT_WIND_OUT} listo.")
 
-            # 2. Iniciar Pipeline (Copia exacta del método funcional)
-            # p1: Lee del Actisense (Salida binaria)
+            # 2. Iniciar Pipeline (Estructura idéntica a tu script funcional)
+            # Añadimos stdin=subprocess.PIPE para evitar el error de EOF
             p1 = subprocess.Popen(
                 ["actisense-serial", PORT_WIND_IN],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL
+                stdin=subprocess.PIPE, 
+                stderr=subprocess.PIPE,
+                text=False
             )
             
-            # p2: Procesa a JSON (Recibe de p1.stdout)
-            # Quitamos text=True para manejar el stream de forma más bruta y estable
             p2 = subprocess.Popen(
                 ["analyzer", "-json"],
                 stdin=p1.stdout,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.PIPE,
+                text=False
             )
 
             logging.info("🚀 Pipeline Actisense -> Analyzer iniciado.")
@@ -56,64 +65,59 @@ def wind_loop():
             last_save = 0
             last_debug_print = 0
 
-            # 3. Lectura de datos desde p2.stdout (Binario -> Decode)
-            # Usamos un bucle más simple para evitar cierres prematuros
-            while True:
-                line_bytes = p2.stdout.readline()
-                if not line_bytes:
-                    break # Aquí es donde detectamos el EOF
-                
+            # 3. Lectura de datos
+            for raw in p2.stdout:
                 try:
-                    line = line_bytes.decode("utf-8", errors="ignore").strip()
-                    if not line: continue
+                    line = raw.decode("utf-8").strip()
+                    if not line:
+                        continue
                     
                     obj = json.loads(line)
                     if obj.get("pgn") != 130306:
                         continue
 
                     fields = obj.get("fields", {})
-                    if "Wind Speed" in fields and "Wind Angle" in fields:
-                        # Extraer datos reales
-                        wind_speed_ms = float(fields["Wind Speed"])
-                        wind_angle_deg = float(fields["Wind Angle"])
-                        wind_speed_knots = wind_speed_ms * 1.94384
+                    wind_speed_ms = float(fields.get("Wind Speed", 0))
+                    wind_angle_deg = float(fields.get("Wind Angle", 0))
+                    wind_speed_knots = wind_speed_ms * 1.94384
 
-                        # A. Enviar a Pixhawk
-                        mwv_sentence = generar_mwv(wind_angle_deg, wind_speed_knots)
-                        ser_out.write(mwv_sentence.encode('ascii'))
+                    # A. Enviar a Pixhawk
+                    mwv_sentence = generar_mwv(wind_angle_deg, wind_speed_knots)
+                    ser_out.write(mwv_sentence.encode('ascii'))
 
-                        now = time.time()
-                        
-                        # B. Monitorización por consola cada 3s
-                        if now - last_debug_print >= 3.0:
-                            logging.info(f"📡 MONITORIZACIÓN -> {mwv_sentence.strip()}")
-                            last_debug_print = now
+                    now = time.time()
+                    
+                    # B. Monitorización por consola cada 3s
+                    if now - last_debug_print >= 3.0:
+                        logging.info(f"📡 MONITORIZACIÓN -> {mwv_sentence.strip()}")
+                        last_debug_print = now
 
-                        # C. Guardar en DB para el Dashboard
-                        if now - last_save >= WIND_SAVE_INTERVAL:
-                            insert_data({
-                                "wind_angle": round(wind_angle_deg, 1),
-                                "wind_speed": round(wind_speed_knots, 1)
-                            })
-                            last_save = now
+                    # C. Guardar en DB para el Dashboard
+                    if now - last_save >= WIND_SAVE_INTERVAL:
+                        insert_data({
+                            "wind_angle": round(wind_angle_deg, 1),
+                            "wind_speed": round(wind_speed_knots, 1)
+                        })
+                        last_save = now
 
                 except Exception as e:
-                    # Si falla una línea, seguimos con la siguiente
+                    # Si falla una línea JSON, simplemente seguimos
                     continue
 
-            logging.warning("⚠️ El flujo de datos se ha detenido (EOF detectado).")
+            logging.warning("⚠️ El flujo de datos se ha detenido inesperadamente.")
 
         except Exception as e:
-            logging.error(f"❌ Error en WindThread: {e}")
+            logging.error(f"❌ Error crítico en WindThread: {e}")
         
         finally:
-            # Limpieza exhaustiva para evitar procesos zombie
+            # Limpieza exhaustiva
+            logging.info("Cerrando recursos de viento...")
             if ser_out and ser_out.is_open:
                 ser_out.close()
-            if p2:
+            if p2: 
                 p2.terminate()
                 p2.wait()
-            if p1:
+            if p1: 
                 p1.terminate()
                 p1.wait()
             
